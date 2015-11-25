@@ -81,24 +81,26 @@ var tensorflow =
   ffi.defineLibrary(path.join(__dirname, 'libtensorflow'))
      .export('createStatus', 'TF_NewStatus', types.Status)
      .export('deleteStatus', 'TF_DeleteStatus', 'void', types.Status)
-     .export('updateStatus', 'TF_SetStatus', 'void', types.Status,
-                                              /* code */ 'int',
-                                              /* message */ 'string')
+     .export('updateStatus', 'TF_SetStatus', 'void',
+                             types.Status,
+                             /* code */ 'int',
+                             /* message */ 'string')
      .export('_statusCode', 'TF_GetCode', 'int', types.Status)
      .export('statusMessage', 'TF_Message', 'string', types.Status)
      .export('_createTensor', 'TF_NewTensor', types.Tensor,
-                                              /* datatype */ 'int',
-                                              /* dim lengths */ types.LongLongArray,
-                                              /* dims */ 'int',
-                                              /* data */ types.Pointer,
-                                              /* length */ 'size_t',
-                                              /* dealloc */ types.Pointer,
-                                              /* deallocarg */ types.Pointer)
+                               /* datatype */ 'int',
+                               /* dim lengths */ types.LongLongArray,
+                               /* dims */ 'int',
+                               /* data */ types.Pointer,
+                               /* length */ 'size_t',
+                               /* dealloc */ types.Pointer,
+                               /* deallocarg */ types.Pointer)
      .export('deleteTensor', 'TF_DeleteTensor', 'void', types.Tensor)
      .export('_tensorType', 'TF_TensorType', 'int', types.Tensor)
      .export('tensorDimensions', 'TF_NumDims', 'int', types.Tensor)
-     .export('tensorDimensionLength', 'TF_Dim', 'longlong', types.Tensor,
-                                                /* dimension index */ 'int')
+     .export('tensorDimensionLength', 'TF_Dim', 'longlong',
+                                      types.Tensor,
+                                      /* dimension index */ 'int')
      .export('tensorDataLength', 'TF_TensorByteSize', 'size_t', types.Tensor)
      .export('tensorData', 'TF_TensorData', 'void*', types.Tensor)
      .create();
@@ -124,11 +126,14 @@ tensorflow.success = function(status) {
 // A no-op deallocator, that can be passed in when creating tensors.
 // The buffer allocated to hold tensors is automatically freed up within the
 // nodejs environment.
-var _tensorDeallocator = ffi.Callback('void', [ types.Pointer, 'size_t', types.Pointer ],
-                                      function() { });
+var _tensorDeallocator =
+  ffi.Callback('void', [ types.Pointer, 'size_t', types.Pointer ],
+               function() { });
 
-tensorflow.createTensor = function(dataType, dimensionLengths, dimensions, data, length) {
-  return tensorflow._createTensor(dataType, dimensionLengths, dimensions, data, length,
+tensorflow.createTensor = function(dataType, dimensionLengths, dimensions,
+                                   data, length) {
+  return tensorflow._createTensor(dataType, dimensionLengths, dimensions,
+                                  data, length,
                                   _tensorDeallocator, null);
 }
 
