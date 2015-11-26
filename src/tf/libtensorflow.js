@@ -73,6 +73,7 @@ var types = {
   FloatArray: refArray('float'),
   StringArray: refArray('string')
 };
+types.TensorArray = refArray(types.Tensor);
 
 
 // TensorFlow library definition
@@ -81,28 +82,67 @@ var tensorflow =
   ffi.defineLibrary(path.join(__dirname, 'libtensorflow'))
      .export('createStatus', 'TF_NewStatus', types.Status)
      .export('deleteStatus', 'TF_DeleteStatus', 'void', types.Status)
-     .export('updateStatus', 'TF_SetStatus', 'void',
-                             types.Status,
-                             /* code */ 'int',
-                             /* message */ 'string')
+     .export('updateStatus', 'TF_SetStatus',
+             'void',
+             types.Status,
+             /* code */ 'int',
+             /* message */ 'string')
      .export('_statusCode', 'TF_GetCode', 'int', types.Status)
      .export('statusMessage', 'TF_Message', 'string', types.Status)
-     .export('_createTensor', 'TF_NewTensor', types.Tensor,
-                               /* datatype */ 'int',
-                               /* dim lengths */ types.LongLongArray,
-                               /* dims */ 'int',
-                               /* data */ types.Pointer,
-                               /* length */ 'size_t',
-                               /* dealloc */ types.Pointer,
-                               /* deallocarg */ types.Pointer)
+     .export('_createTensor', 'TF_NewTensor',
+             types.Tensor,
+             /* datatype */ 'int',
+             /* dim lengths */ types.LongLongArray,
+             /* dims */ 'int',
+             /* data */ types.Pointer,
+             /* length */ 'size_t',
+             /* dealloc */ types.Pointer,
+             /* deallocarg */ types.Pointer)
      .export('deleteTensor', 'TF_DeleteTensor', 'void', types.Tensor)
      .export('_tensorType', 'TF_TensorType', 'int', types.Tensor)
      .export('tensorDimensions', 'TF_NumDims', 'int', types.Tensor)
-     .export('tensorDimensionLength', 'TF_Dim', 'longlong',
-                                      types.Tensor,
-                                      /* dimension index */ 'int')
+     .export('tensorDimensionLength', 'TF_Dim',
+             'longlong',
+             types.Tensor,
+             /* dimension index */ 'int')
      .export('tensorDataLength', 'TF_TensorByteSize', 'size_t', types.Tensor)
      .export('tensorData', 'TF_TensorData', 'void*', types.Tensor)
+     .export('createSessionOptions', 'TF_NewSessionOptions',
+             types.SessionOptions)
+     .export('deleteSessionOptions', 'TF_DeleteSessionOptions',
+             'void',
+             types.SessionOptions)
+     .export('setSessionTarget', 'TF_SetTarget', types.SessionOptions, 'string')
+     .export('setSessionConfig', 'TF_SetConfig',
+             types.SessionOptions,
+             /* graph proto */ types.Pointer,
+             /* graph proto length */ 'size_t',
+             types.Status) 
+     .export('createSession', 'TF_NewSession',
+             types.Session,
+             types.SessionOptions,
+             types.Status)
+     .export('deleteSession', 'TF_DeleteSession', 'void', types.Session)
+     .export('closeSession', 'TF_CloseSession',
+             'void',
+             types.Session,
+             types.Status)
+     .export('extendGraph', 'TF_ExtendGraph',
+             'void',
+             /* graph proto */ types.Pointer,
+             /* graph proto length */ 'size_t',
+             types.Status)
+     .export('run', 'TF_Run',
+             'void',
+             /* input names */ types.StringArray,
+             /* input tensors */ types.TensorArray,
+             /* inputs */ 'int',
+             /* output names */ types.StringArray,
+             /* outputs tensors */ types.TensorArray,
+             /* outputs */ 'int',
+             /* node names */ types.StringArray,
+             /* nodes */ 'int',
+             /* status */ types.Status)
      .create();
 
 
