@@ -49,7 +49,7 @@ def main():
 
   graph = script_scope.get('graph', None)
   if graph is not None:
-    graph_def = str(graph.as_graph_def())
+    graph_def = graph.as_graph_def().SerializeToString()
 
     file = open(output, 'w')
     file.write(graph_def)

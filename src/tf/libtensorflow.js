@@ -122,13 +122,17 @@ var tensorflow =
              types.Session,
              types.SessionOptions,
              types.Status)
-     .export('deleteSession', 'TF_DeleteSession', 'void', types.Session)
+     .export('deleteSession', 'TF_DeleteSession',
+             'void',
+             types.Session,
+             types.Status)
      .export('closeSession', 'TF_CloseSession',
              'void',
              types.Session,
              types.Status)
      .export('extendGraph', 'TF_ExtendGraph',
              'void',
+             types.Session,
              /* graph proto */ types.Pointer,
              /* graph proto length */ 'size_t',
              types.Status)
