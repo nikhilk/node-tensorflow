@@ -138,6 +138,7 @@ var tensorflow =
              types.Status)
      .export('run', 'TF_Run',
              'void',
+             types.Session,
              /* input names */ types.StringArray,
              /* input tensors */ types.TensorArray,
              /* inputs */ 'int',

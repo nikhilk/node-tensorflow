@@ -4,7 +4,9 @@
 
 'use strict';
 
-var tensorflow = require('./libtensorflow.js');
+var fs = require('fs'),
+    path = require('path'),
+    tensorflow = require('./libtensorflow.js');
 
 var status = tensorflow.createStatus();
 tensorflow.updateStatus(status, 0, 'OK');
@@ -33,8 +35,42 @@ var status = tensorflow.createStatus();
 var session = tensorflow.createSession(sessionOptions, status);
 if (tensorflow.success(status)) {
   console.log('session created');
+
+  var graph = fs.readFileSync(path.join(__dirname, 'hello.graph'));
+  tensorflow.extendGraph(session, graph, graph.length, status);
+
+  if (tensorflow.success(status)) {
+    console.log('graph loaded');
+
+    var outputNames = tensorflow.types.StringArray(['result']);
+    var outputs = tensorflow.types.TensorArray(1);
+    tensorflow.run(session,
+                   // inputNames, inputs, inputNames.length,
+                   null, null, 0,
+                   outputNames, outputs, outputNames.length,
+                   // targets, targets.length,
+                   null, 0,
+                   status);
+    if (tensorflow.success(status)) {
+      console.log('successfully executed the graph');
+
+      // Expecting int32 scalar
+      var result = outputs[0];
+      var data = tensorflow.tensorRead(result).readInt32LE(0);
+
+      console.log('result was ' + data + ' - ' + tensorflow.tensorType(result));
+    }
+    else {
+      console.log('error executing the graph');
+      console.log(tensorflow.statusMessage(status));
+    }
+  }
+
   tensorflow.closeSession(session, status);
-  tensorflow.deleteSession(session);
+  console.log('session closed');
+
+  tensorflow.deleteSession(session, status);
+  console.log('session deleted');
 }
 else {
   console.log('Failed to create session');
