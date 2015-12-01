@@ -106,7 +106,7 @@ var tensorflow =
              types.Tensor,
              /* dimension index */ 'int')
      .export('tensorDataLength', 'TF_TensorByteSize', 'size_t', types.Tensor)
-     .export('tensorData', 'TF_TensorData', 'void*', types.Tensor)
+     .export('tensorData', 'TF_TensorData', types.Pointer, types.Tensor)
      .export('createSessionOptions', 'TF_NewSessionOptions',
              types.SessionOptions)
      .export('deleteSessionOptions', 'TF_DeleteSessionOptions',

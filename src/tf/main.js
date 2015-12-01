@@ -45,10 +45,8 @@ if (tensorflow.success(status)) {
     var outputNames = tensorflow.types.StringArray(['result']);
     var outputs = tensorflow.types.TensorArray(1);
     tensorflow.run(session,
-                   // inputNames, inputs, inputNames.length,
                    null, null, 0,
                    outputNames, outputs, outputNames.length,
-                   // targets, targets.length,
                    null, 0,
                    status);
     if (tensorflow.success(status)) {
@@ -74,5 +72,56 @@ if (tensorflow.success(status)) {
 }
 else {
   console.log('Failed to create session');
+}
+
+
+var session = tensorflow.createSession(sessionOptions, status);
+if (tensorflow.success(status)) {
+  var graph = fs.readFileSync(path.join(__dirname, 'matrix.graph'));
+  tensorflow.extendGraph(session, graph, graph.length, status);
+
+  if (tensorflow.success(status)) {
+    var m1 = tensorflow.types.FloatArray([1.0,0.0,0.0,1.0]);
+    var m2 = tensorflow.types.FloatArray([3.0,3.0,3.0,3.0]);
+    var p1 = tensorflow.createTensor(tensorflow.dataTypes.float,
+                                     tensorflow.types.LongLongArray([2,2]), 2,
+                                     m1.buffer, m1.buffer.length);
+    var p2 = tensorflow.createTensor(tensorflow.dataTypes.float,
+                                     tensorflow.types.LongLongArray([2,2]), 2,
+                                     m2.buffer, m2.buffer.length);
+    var inputNames = tensorflow.types.StringArray(['p1','p2']);
+    var inputs = tensorflow.types.TensorArray([p1, p2]);
+
+    var outputNames = tensorflow.types.StringArray(['result']);
+    var outputs = tensorflow.types.TensorArray(1);
+    tensorflow.run(session,
+                   inputNames, inputs, inputNames.length,
+                   outputNames, outputs, outputNames.length,
+                   null, 0,
+                   status);
+    if (tensorflow.success(status)) {
+      console.log('successfully executed the matrix graph with matrices');
+
+      var result = outputs[0];
+      console.log('result type: ' + tensorflow.tensorType(result));
+      console.log('result shape: ' + tensorflow.tensorDimensions(result));
+      console.log('result dims: ' + tensorflow.tensorDimensionLength(result, 0) +
+                  ', ' + tensorflow.tensorDimensionLength(result, 1));
+      console.log('data length: ' + tensorflow.tensorDataLength(result));
+
+      var resultData = tensorflow.tensorRead(result);
+      console.log(resultData.readFloatLE(0));
+      console.log(resultData.readFloatLE(4));
+      console.log(resultData.readFloatLE(8));
+      console.log(resultData.readFloatLE(12));
+    }
+    else {
+      console.log('error executing the matrix graph');
+      console.log(tensorflow.statusMessage(status));
+    }
+  }
+
+  tensorflow.closeSession(session, status);
+  tensorflow.deleteSession(session, status);
 }
 
