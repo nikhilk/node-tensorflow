@@ -1,5 +1,5 @@
-// main.js
-// Runs through TensorFlow functionality.
+// test_api.js
+// Runs through TensorFlow APIs.
 //
 
 'use strict';
@@ -36,7 +36,7 @@ var session = tensorflow.createSession(sessionOptions, status);
 if (tensorflow.success(status)) {
   console.log('session created');
 
-  var graph = fs.readFileSync(path.join(__dirname, 'hello.graph'));
+  var graph = fs.readFileSync(path.join(__dirname, 'x.graph'));
   tensorflow.extendGraph(session, graph, graph.length, status);
 
   if (tensorflow.success(status)) {

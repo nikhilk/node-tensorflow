@@ -4,10 +4,17 @@
 
 'use strict';
 
-var path = require('path'),
+var fs = require('fs'),
+    path = require('path'),
+    protobuf = require('protocol-buffers'),
     ref = require('ref'),
     refArray = require('ref-array');
 var ffi = require('./ffiplus');
+
+// Proto definitions
+var protos = protobuf(fs.readFileSync(path.join(__dirname,
+                                                'tensorflow.proto')));
+
 
 // Enum definitions
 
@@ -154,6 +161,7 @@ var tensorflow =
 tensorflow.statusCodes = statusCodes;
 tensorflow.dataTypes = dataTypes;
 tensorflow.types = types;
+tensorflow.protos = protos;
 
 
 // Helper Methods
