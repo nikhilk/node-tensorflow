@@ -2,7 +2,7 @@
 // Node.js wrapper for a TensorFlow session and related APIs.
 //
 
-var tensorflow = require('./libtensorflow);
+var tensorflow = require('./interop/libtensorflow);
 
 function Session() {
 }
