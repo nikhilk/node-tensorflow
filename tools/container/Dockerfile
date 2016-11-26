@@ -2,7 +2,7 @@
 #
 
 FROM debian:jessie
-MAINTAINER Michael Jancen-Widmer
+MAINTAINER nikhilk
 
 # Setup OS and core packages
 RUN echo "deb-src http://ftp.us.debian.org/debian testing main" >> /etc/apt/sources.list && \
