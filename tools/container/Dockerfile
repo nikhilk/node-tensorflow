@@ -2,7 +2,7 @@
 #
 
 FROM debian:jessie
-MAINTAINER Nikhil Kothari
+MAINTAINER Michael Jancen-Widmer
 
 # Setup OS and core packages
 RUN echo "deb-src http://ftp.us.debian.org/debian testing main" >> /etc/apt/sources.list && \
@@ -13,7 +13,7 @@ RUN echo "deb-src http://ftp.us.debian.org/debian testing main" >> /etc/apt/sour
 
 # Setup Node.js
 RUN mkdir -p /tools/node && \
-    wget -nv https://nodejs.org/dist/v4.2.3/node-v4.2.3-linux-x64.tar.gz -O node.tar.gz && \
+    wget -nv https://nodejs.org/dist/v7.2.0/node-v7.2.0-linux-x64.tar.gz -O node.tar.gz && \
     tar xzf node.tar.gz -C /tools/node --strip-components=1 && \
     rm node.tar.gz
 
