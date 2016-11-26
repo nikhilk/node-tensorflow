@@ -19,7 +19,7 @@ RUN mkdir -p /tools/node && \
 
 # Setup TensorFlow
 RUN pip install --upgrade six
-RUN pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.5.0-cp27-none-linux_x86_64.whl
+RUN pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0-cp27-none-linux_x86_64.whl
 
 # Configuration
 ENV PATH $PATH:/tools/node/bin
