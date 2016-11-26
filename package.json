@@ -1,6 +1,6 @@
 {
   "name": "tensorflow",
-  "version": "0.5.0",
+  "version": "0.11.0",
   "description": "Node.js module for TensorFlow",
   "keywords": [
     "tensorflow",
@@ -18,7 +18,11 @@
     {
       "name": "Nikhil Kothari",
       "email": "nikhilko@google.com"
-    }
+    },
+    {
+      "name": "Michael Jancen-Widmer",
+      "email": "jancen.widmer@google.com"
+    },
   ],
   "license": "Apache 2.0",
   "repository": {
@@ -36,7 +40,7 @@
     "ref-array": "^1.1.2"
   },
   "engines": {
-    "node": ">=4.2.2"
+    "node": "7.2.0"
   },
   "os": [
     "linux"
