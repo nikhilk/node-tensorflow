@@ -22,30 +22,36 @@ and gather community input and participation.
 
 But, anyway, here is what is in the works:
 
-    var tf = require('tensorflow'),
-        fs = require('fs');
+```javascript
+const tf = require('tensorflow'),
+      fs = require('fs');
 
-    // Define the graph
-    var g = new tf.Graph();
-    var shape = [2, 2]
-    var p1 = g.placeholder(tf.types.float, shape).named('p1');
-    var p2 = g.placeholder(tf.types.float, shape).named('p2');
-    var value = g.matmul(p1, p2).named('value');
+// Define the graph
+const g = new tf.Graph();
+const shape = [2, 2];
 
-    // Optionally save it out (with corresponding APIs to load, instead
-    // of re-building the graph, for example when using the resulting model).
-    fs.writeFileSync('/tmp/hello.graph', g.save());
+const p1 = g.placeholder(tf.types.float, shape).named('p1');
+const p2 = g.placeholder(tf.types.float, shape).named('p2');
 
-    // Execute the graph
-    var session = new tf.Session(g);
+const value = g.matmul(p1, p2).named('value');
 
-    var data = {};
-    data[p1] = new tf.Tensor([[1.0, 0.0],[0.0, 1.0]]);
-    data[p2] = new tf.Tensor([[3.0, 3.0],[3.0, 3.0]]);
+// Optionally save it out (with corresponding APIs to load, instead
+// of re-building the graph, for example when using the resulting model).
 
-    var results = session.run([ value ], data);
-    console.log(results[value]);
+fs.writeFileSync('/tmp/hello.graph', g.save());
 
+// Execute the graph
+const session = new tf.Session(g);
+
+const data = {
+  [p1]: new tf.Tensor([[1.0, 0.0],[0.0, 1.0]]),
+  [p2]: new tf.Tensor([[3.0, 3.0],[3.0, 3.0]]),
+};
+
+const results = session.run([ value ], data);
+
+console.log(results[value]);
+```
 
 As it starts to come together it will be available on
 [npmjs](https://www.npmjs.org/package/tensorflow) as any other module.
