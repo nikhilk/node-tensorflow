@@ -100,5 +100,7 @@ Some things on the plan to be tackled.
    So building the TensorFlow binaries at time of package installation is a
    non-option.
 6. Nicely packaged and published npm package along with better docs.
+7. Possible [deeplearn.js](https://github.com/PAIR-code/deeplearnjs) integration
+8. ...
 
 If any of this is interesting to you, please let me know!
