@@ -1,58 +1,104 @@
 # TensorFlow + Node.js
 
-[TensorFlow](https://tensorflow.org) is Google's machine learning and
-data flow-based computation system. It is implemented as C++ runtime, and comes with Python bindings out-of-the-box, including a comprehensive toolbox of
-primitives for use in defining a variety of models, including various kinds of
-neural networks.
+[TensorFlow](https://tensorflow.org) is Google's machine learning runtime.
+It is implemented as C++ runtime, along with Python bindings and framework
+out-of-the-box to support building a variety of models, especially neural
+networks for deep learning.
 
-This module makes it possible to tap into those capabilities from node.js, with
-a 100% JavaScript (or TypeScript if you prefer) developer experience. It
-provides a natural node.js development experience, while taking care of the
-interop.
+It is interesting to be able to use TensorFlow in a node.js application
+using just JavaScript (or TypeScript if that's your preference). However,
+the Python functionality is vast (several ops, estimator implementations etc.)
+and continually expanding. Instead, it would be interesting to consider
+building Graphs and training models in Python, and then consuming those
+for runtime use-cases (like prediction or inference) in a pure node.js and
+Python-free deployment. This is what this node module offers.
 
-Essentially it allows you to define graphs, work with tensors and operations,
-and then execute that graph to run through your data within a session. These
-key concepts define the essence of the programming model.
+This module takes care of the building blocks and mechanics for working
+with the TensorFlow C API, and instead provides an API around Tensors, Graphs,
+Sessions and Models.
 
-## A glimpse at what is in the works
+This is still in the works, and recently revamped to support TensorFlow 1.4+.
 
-This is project is super early, so the current implementation is far from
-complete, and has been cobbled together somewhat quickly to share early ideas,
-and gather community input and participation.
+## High Level Interface - Models
 
-But, anyway, here is what is in the works:
-
-    var tf = require('tensorflow'),
-        fs = require('fs');
-
-    // Define the graph
-    var g = new tf.Graph();
-    var shape = [2, 2]
-    var p1 = g.placeholder(tf.types.float, shape).named('p1');
-    var p2 = g.placeholder(tf.types.float, shape).named('p2');
-    var value = g.matmul(p1, p2).named('value');
-
-    // Optionally save it out (with corresponding APIs to load, instead
-    // of re-building the graph, for example when using the resulting model).
-    fs.writeFileSync('/tmp/hello.graph', g.save());
-
-    // Execute the graph
-    var session = new tf.Session(g);
-
-    var data = {};
-    data[p1] = new tf.Tensor([[1.0, 0.0],[0.0, 1.0]]);
-    data[p2] = new tf.Tensor([[3.0, 3.0],[3.0, 3.0]]);
-
-    var results = session.run([ value ], data);
-    console.log(results[value]);
+This is in plan. The idea here is to point to a saved model and be able to
+use it for predictions. Instances-in, inferences-out.
 
 
-As it starts to come together it will be available on
+## Low Level Interface - Tensors, Graphs and Sessions
+
+Lets assume we have a simple TensorFlow graph. For illustration purposes, a
+trivial graph produced from this Python code, and saved as a GraphDef
+protocol buffer file.
+
+```python
+import tensorflow as tf
+
+with tf.Graph().as_default() as graph:
+  c1 = tf.constant(1, name='c1')
+  c2 = tf.constant(41, name='c2')
+  result = tf.add(c1, c2, name='result')
+
+  tf.train.write_graph(graph, '.', 'trivial.graph.proto', as_text=False)
+```
+
+Now, in node.js, you can load this serialized graph definition, load a
+TensorFlow session, and then run specific operations to retrive tensors.
+
+```javascript
+const tf = require('tensorflow');
+
+// Load the session with the specified graph definition
+let session = tf.Session.fromGraphDef('trivial.graph.proto');
+    
+// Load references to operations that will be referenced later,
+// mapping friendly names to graph names (useful for handling
+// fully-qualified tensor or op names)
+session.graph.loadReferences({ result: 'result' })
+    
+// Run to evaluate and retrieve the value of the 'result' op.
+let outputs = session.run(/* inputs */ null,
+                          /* outputs */ [ 'result' ],
+                          /* targets */ null);
+
+// Should print out '42'
+console.log(outputs.result.toValue());
+    
+// Low-level interface requires explicit cleanup, so be sure to
+// delete native objects.
+outputs.result.delete();
+session.delete();
+```
+
+Above is obviously an overly-simplistic sample. A real-sample (forthcoming)
+would demonstrate both inputs and outputs, and multi-dimensional tensors
+rather than scalars.
+
+Stay tuned!
+
+As more of this functionality is in place, it will be available on
 [npmjs](https://www.npmjs.org/package/tensorflow) as any other module.
 
-## More for later, and helping ...
+## In the works, and more to come ...
 
-Stay tuned for more. If you're interested in helping out, by all means, 
-please connect here. I'll share a bit more detail about the roadmap, as well
-as issues for big questions, design issues and areas of exploration.
+Some things on the plan to be tackled.
 
+1. Support for string tensors.
+2. Support for high-level API (using saved models representing results
+   of training)
+3. Support for mac. Right now, this only works on Ubuntu (see the
+   Dockerfile definition). This may not be too bad if your node.js
+   application itself runs in a containerized manner when deployed.
+4. Support for pre-packaged TensorFlow binaries. Right now you need
+   to install them (libtensorflow.so and libtensorflow_framework.so)
+   and set a TENSORFLOW_LIB_PATH environment variable to the directory
+   containing those binaries.
+5. Support for pulling the associated binaries for specific platforms.
+   I'd love to see these distributed alongside the official TensorFlow
+   releases, since building TensorFlow fairly long, and has undesirable
+   dependencies that (things lik bazel, a java-based build system!).
+   So building the TensorFlow binaries at time of package installation is a
+   non-option.
+6. Nicely packaged and published npm package along with better docs.
+
+If any of this is interesting to you, please let me know!
