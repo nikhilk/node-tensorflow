@@ -1,4 +1,4 @@
 #!/bin/sh
 
-docker build -t node-tensorflow .
+docker build -t tf-env .
 
