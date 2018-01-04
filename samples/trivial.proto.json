@@ -1,0 +1,56 @@
+{
+  "node": [
+    {
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        }, 
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32", 
+            "tensorShape": {}, 
+            "intVal": [
+              1
+            ]
+          }
+        }
+      }, 
+      "name": "c1", 
+      "op": "Const"
+    }, 
+    {
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        }, 
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32", 
+            "tensorShape": {}, 
+            "intVal": [
+              41
+            ]
+          }
+        }
+      }, 
+      "name": "c2", 
+      "op": "Const"
+    }, 
+    {
+      "input": [
+        "c1", 
+        "c2"
+      ], 
+      "attr": {
+        "T": {
+          "type": "DT_INT32"
+        }
+      }, 
+      "name": "result", 
+      "op": "Add"
+    }
+  ], 
+  "versions": {
+    "producer": 24
+  }
+}

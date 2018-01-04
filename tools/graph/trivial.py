@@ -3,7 +3,7 @@
 #
 
 import tensorflow as tf
-from . import util as util
+import util
 
 def build_graph():
   with tf.Graph().as_default() as graph:
