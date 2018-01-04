@@ -89,9 +89,9 @@ const statusCodes = {
   unauthenticated: 16,
 };
 
-const libPath = process.env['TENSORFLOW_LIB_PATH'];
+let libPath = process.env['TENSORFLOW_LIB_PATH'];
 if (!libPath) {
-  throw new Error('TENSORFLOW_LIB_PATH must be set to a directory containing TensorFlow binaries');
+  libPath = path.join(__dirname, '..', 'lib');
 }
 if (!fs.existsSync(path.join(libPath, 'libtensorflow.so'))) {
   throw new Error(`libtensorflow.so was not found at "${libPath}"`);

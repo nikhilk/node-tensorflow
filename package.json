@@ -38,6 +38,11 @@
     "node": ">=8.9.3"
   },
   "os": [
-    "linux"
-  ]
+    "linux",
+    "darwin"
+  ],
+  "scripts": {
+    "postinstall": "npm run -s installtf",
+    "installtf": "node setup/setup.js"
+  }
 }

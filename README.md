@@ -86,21 +86,7 @@ Some things on the plan to be tackled.
 1. Support for string tensors.
 2. Support for high-level API (using saved models representing results
    of training)
-3. Support for mac. Right now, this only works on Ubuntu (see the
-   Dockerfile definition). This may not be too bad if your node.js
-   application itself runs in a containerized manner when deployed.
-4. Support for pre-packaged TensorFlow binaries. Right now you need
-   to install them (libtensorflow.so and libtensorflow_framework.so)
-   and set a TENSORFLOW_LIB_PATH environment variable to the directory
-   containing those binaries.
-5. Support for pulling the associated binaries for specific platforms.
-   I'd love to see these distributed alongside the official TensorFlow
-   releases, since building TensorFlow fairly long, and has undesirable
-   dependencies that (things lik bazel, a java-based build system!).
-   So building the TensorFlow binaries at time of package installation is a
-   non-option.
-6. Nicely packaged and published npm package along with better docs.
-7. Possible [deeplearn.js](https://github.com/PAIR-code/deeplearnjs) integration
-8. ...
+3. Nicely packaged and published npm package along with better docs.
+4. What else? Please file issues...
 
 If any of this is interesting to you, please let me know!
