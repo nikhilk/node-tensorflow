@@ -24,7 +24,9 @@
   "license": "Apache 2.0",
   "repository": "github:nikhilk/node-tensorflow",
   "files": [
-    "src", "setup", "README.md"
+    "src",
+    "setup",
+    "README.md"
   ],
   "main": "src/index.js",
   "dependencies": {
