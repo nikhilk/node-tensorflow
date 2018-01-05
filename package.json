@@ -1,6 +1,6 @@
 {
   "name": "tensorflow",
-  "version": "0.6.0",
+  "version": "0.6.4",
   "description": "Node.js module for using TensorFlow graphs and models",
   "keywords": [
     "tensorflow",
@@ -24,7 +24,7 @@
   "license": "Apache 2.0",
   "repository": "github:nikhilk/node-tensorflow",
   "files": [
-    "src"
+    "src", "setup", "README.md"
   ],
   "main": "src/index.js",
   "dependencies": {
