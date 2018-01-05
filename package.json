@@ -1,6 +1,6 @@
 {
   "name": "tensorflow",
-  "version": "0.6.2-0",
+  "version": "0.6.0",
   "description": "Node.js module for using TensorFlow graphs and models",
   "keywords": [
     "tensorflow",
