@@ -57,8 +57,7 @@ function downloadPackage(url, downloadPath, cb) {
       file.write(chunk);
     })
     .on('end', function() {
-      file.end();
-      cb();
+      file.end(cb);
     })
   });
 
