@@ -1,5 +1,4 @@
-const path = require('path');
-const tf = require('../src/index');
+const tf = require('tensorflow');
 
 console.log('Tensor Test');
 
@@ -27,7 +26,7 @@ console.log(data2);
 
 console.log('Graph Test');
 
-let graph = tf.Graph.fromGraphDef('./trivial.proto')
+let graph = tf.Graph.fromGraphDef('./graph.proto')
 graph.loadOperations({c1: 'c1', c2: 'c2', result: 'result'});
 console.log(graph);
 graph.delete();
@@ -35,7 +34,7 @@ graph.delete();
 
 console.log('Session Test');
 
-let session = tf.Session.fromGraphDef('./trivial.proto', true);
+let session = tf.Session.fromGraphDef('./graph.proto', true);
 session.graph.loadOperations({ result: 'result' });
 let tensors = session.run(null, ['result'], null);
 console.log(tensors.result.toValue());

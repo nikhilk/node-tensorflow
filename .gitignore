@@ -2,3 +2,4 @@ include/
 lib/
 node_modules/
 *.pyc
+package-lock.json
