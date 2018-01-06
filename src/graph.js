@@ -41,25 +41,24 @@ class Graph extends api.Reference {
     return this._ops;
   }
 
-  loadOperations(nameAliasMap) {
+  loadOperations(operations) {
     this.ensureValid();
 
-    let unresolvedOps = false;
-    let unresolvedOpsMap = {};
-    for (let name in nameAliasMap) {
-      let alias = nameAliasMap[name];
+    let unresolvedOps = null;
+    for (let alias in operations) {
+      let name = operations[alias];
       let op = api.TF_GraphOperationByName(this._handle, name);
 
       if (op && !op.isNull()) {
         this._ops[alias] = op;
       }
       else {
-        unresolvedOps = true;
-        unresolvedOpsMap[name] = alias;
+        unresolvedOps = unresolvedOps || {};
+        unresolvedOps[alias] = name;
       }
     }
 
-    return unresolvedOps ? unresolvedOpsMap : null;
+    return unresolvedOps;
   }
 
   static fromGraphDef(graphDefPath) {
