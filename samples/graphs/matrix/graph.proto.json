@@ -1,0 +1,76 @@
+{
+  "node": [
+    {
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        }, 
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32", 
+            "tensorShape": {
+              "dim": [
+                {
+                  "size": "2"
+                }, 
+                {
+                  "size": "2"
+                }
+              ]
+            }, 
+            "tensorContent": "AgAAAAIAAAAEAAAABAAAAA=="
+          }
+        }
+      }, 
+      "name": "c1", 
+      "op": "Const"
+    }, 
+    {
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        }, 
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32", 
+            "tensorShape": {
+              "dim": [
+                {
+                  "size": "2"
+                }, 
+                {
+                  "size": "1"
+                }
+              ]
+            }, 
+            "tensorContent": "AwAAAAUAAAA="
+          }
+        }
+      }, 
+      "name": "c2", 
+      "op": "Const"
+    }, 
+    {
+      "input": [
+        "c1", 
+        "c2"
+      ], 
+      "attr": {
+        "transpose_b": {
+          "b": false
+        }, 
+        "transpose_a": {
+          "b": false
+        }, 
+        "T": {
+          "type": "DT_INT32"
+        }
+      }, 
+      "name": "computation/result", 
+      "op": "MatMul"
+    }
+  ], 
+  "versions": {
+    "producer": 24
+  }
+}
