@@ -67,10 +67,10 @@ function downloadPackage(url, downloadPath, cb) {
   });
 }
 
-function expandPackage(tarPath) {
+function expandPackage(tarPath, expandPath) {
   console.log('Expanding and installing ...')
   try {
-    processes.execSync(`tar -C ${path.dirname(tarPath)} -xzf ${tarPath}`);
+    processes.execSync(`tar -C ${expandPath} -xzf ${tarPath}`);
   }
   catch (e) {
     console.log('Unable to setup TensorFlow libraries.');
@@ -87,15 +87,16 @@ function install() {
 
   let url = 'https://storage.googleapis.com/tensorflow/libtensorflow/' +
             `libtensorflow-${libType}-${libPlatform}-x86_64-${libVersion}.tar.gz`;
-  let installPath = path.join(__dirname, '..', 'tensorflow.tar.gz');
+  let tarPath = path.join(os.tmpdir(), 'tensorflow.tar.gz');
+  let installPath = path.join(__dirname, '..');
 
-  downloadPackage(url, installPath, function(e) {
+  downloadPackage(url, tarPath, function(e) {
     if (e) {
       console.log(e.message);
       process.exit(1);
     }
 
-    expandPackage(installPath);
+    expandPackage(tarPath, installPath);
   });
 }
 

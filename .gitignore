@@ -2,5 +2,3 @@ include/
 lib/
 node_modules/
 *.pyc
-
-tensorflow.tar.gz
