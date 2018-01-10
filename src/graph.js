@@ -61,9 +61,15 @@ class Graph extends api.Reference {
     return unresolvedOps;
   }
 
-  static fromGraphDef(graphDefPath) {
+  static fromGraphDef(graphDefPath, operations) {
     let protobuf = fs.readFileSync(graphDefPath);
-    return loadGraph(protobuf);
+    let graph = loadGraph(protobuf);
+
+    if (operations) {
+      graph.loadOperations(operations);
+    }
+
+    return graph;
   }
 
   // TODO: Implement loading a Graph from an in-memory JSON object representatio of a GraphDef.
