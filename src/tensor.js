@@ -4,7 +4,7 @@
 
 'use strict';
 
-const api = require('./api'),
+const api = require('./interop/api'),
       os = require('os');
 
 // TODO: Improve Tensor support, esp. for JavaScript use-cases.

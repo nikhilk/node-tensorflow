@@ -4,7 +4,7 @@
 
 'use strict';
 
-const api = require('./api'),
+const api = require('./interop/api'),
       Graph = require('./graph'),
       Tensor = require('./tensor');
 
@@ -102,8 +102,8 @@ class Session extends api.Reference {
     }
   }
 
-  static fromGraphDef(graphDefPath) {
-    let graph = Graph.fromGraphDef(graphDefPath);
+  static fromGraphDef(graphDef, operations) {
+    let graph = Graph.fromGraphDef(graphDef, operations);
     return Session.fromGraph(graph, /* ownGraph */ true);
   }
 

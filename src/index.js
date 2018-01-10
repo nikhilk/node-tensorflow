@@ -2,7 +2,7 @@
 // Defines the TensorFlow module.
 //
 
-const api = require('./api');
+const api = require('./interop/api');
 
 module.exports = {
   Types: api.Types,

@@ -1,4 +1,4 @@
-// api.js
+// tf.js
 // Interface for TensorFlow C API
 //
 // This defines the TensorFlow library matching a subset of the C API methods as defined in
@@ -91,7 +91,7 @@ const statusCodes = {
 
 let libPath = process.env['TENSORFLOW_LIB_PATH'];
 if (!libPath) {
-  libPath = path.join(__dirname, '..', 'lib');
+  libPath = path.join(__dirname, '..', '..', 'lib');
 }
 if (!fs.existsSync(path.join(libPath, 'libtensorflow.so'))) {
   throw new Error(`libtensorflow.so was not found at "${libPath}"`);
@@ -191,7 +191,7 @@ const libApi = {
 };
 
 const library = ffi.Library(path.join(libPath, 'libtensorflow'), libApi);
-library.Protos = protobuf(fs.readFileSync(path.join(__dirname, 'api.proto')));
+library.Protos = require('./messages');
 library.ApiTypes = types;
 library.StatusCodes = statusCodes;
 library.Types = tensorTypes;

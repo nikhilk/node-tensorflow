@@ -4,7 +4,7 @@
 
 'use strict';
 
-const api = require('./api'),
+const api = require('./interop/api'),
       fs = require('fs');
 
 function loadGraph(protobuf) {
@@ -61,8 +61,23 @@ class Graph extends api.Reference {
     return unresolvedOps;
   }
 
-  static fromGraphDef(graphDefPath, operations) {
-    let protobuf = fs.readFileSync(graphDefPath);
+  static fromGraphDef(graphDef, operations) {
+    let protobuf = null;
+    if (graphDef.constructor == String) {
+      protobuf = fs.readFileSync(graphDef);
+    }
+    else if (Buffer.isBuffer(graphDef)) {
+      protobuf = graphDef;
+    }
+    else {
+      let ProtobufWriter = require('pbf');
+
+      let writer = new ProtobufWriter();
+      api.Protos.GraphDef.write(graphDef, writer);
+
+      protobuf = writer.finish();
+    }
+
     let graph = loadGraph(protobuf);
 
     if (operations) {
@@ -71,13 +86,6 @@ class Graph extends api.Reference {
 
     return graph;
   }
-
-  // TODO: Implement loading a Graph from an in-memory JSON object representatio of a GraphDef.
-  //       However, this doesn't yet work. The resulting protobuf/GraphDef is invalid.
-  // static fromGraphDefObject(graphDefObject) {
-  //   let protobuf = api.Protos.GraphDef.encode(graphDefObject);
-  //   return loadGraph(protobuf);
-  // }
 }
 
 
