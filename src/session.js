@@ -21,7 +21,6 @@ function createRunParameters(graph, inputs, outputs, targets) {
   };
 
   if (inputs) {
-    params.inputs = inputs.length;
     params.inputOps = [];
     params.inputTensors = [];
 
@@ -35,7 +34,9 @@ function createRunParameters(graph, inputs, outputs, targets) {
       }
 
       params.inputOps.push(api.ApiTypes.OperationValue({op: opReference, index: parts[1] || 0}));
-      params.inputTensors.push(inputs[op]);
+      params.inputTensors.push(inputs[op].handle);
+
+      params.inputs++;
     }
 
     params.inputOps = api.ApiTypes.OperationValueArray(params.inputOps);
@@ -52,6 +53,7 @@ function createRunParameters(graph, inputs, outputs, targets) {
       }
       return api.ApiTypes.OperationValue({op: graph.ops[name], index: parts[1] || 0});
     });
+    params.outputOps = api.ApiTypes.OperationValueArray(params.outputOps);
     params.outputTensors = api.ApiTypes.TensorArray(params.outputs);
   }
 
@@ -63,6 +65,7 @@ function createRunParameters(graph, inputs, outputs, targets) {
       }
       return graph.ops[t];
     });
+    params.targetOps = api.ApiTypes.OperationArray(params.targetOps);
   }
 
   return params;
@@ -85,7 +88,7 @@ class Session extends api.Reference {
 
     let status = api.TF_NewStatus();
     let sessionOptions = api.TF_NewSessionOptions();
-    let sessionHandle = api.TF_NewSession(graph._handle, sessionOptions, status);
+    let sessionHandle = api.TF_NewSession(graph.handle, sessionOptions, status);
     let code = api.TF_GetCode(status);
 
     api.TF_DeleteSessionOptions(sessionOptions);
@@ -113,7 +116,7 @@ class Session extends api.Reference {
 
   delete() {
     // Overridden, as TF_DeleteSession doesn't follow the pattern of other Delete APIs.
-    if (this._handle) {
+    if (this.isValid) {
       let status = api.TF_NewStatus();
       api.TF_DeleteSession(this._handle, status);
       api.TF_DeleteStatus(status);

@@ -105,8 +105,8 @@ class Tensor extends api.Reference {
     }
 
     let handle = api.TF_NewTensor(dataType, api.ApiTypes.LongLongArray(shape), shape.length,
-                                data.buffer, data.buffer.length,
-                                api.TensorDeallocator, null);
+                                  data.buffer, data.buffer.length,
+                                  api.TensorDeallocator, null);
     if (handle === null) {
       throw new Error('Unable to allocate Tensor.');
     }

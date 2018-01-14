@@ -21,10 +21,14 @@ def save_graph(graph, name='graph'):
 
 def build_graph():
   with tf.Graph().as_default() as graph:
-    c1 = tf.constant([[2,2],[4,4]], name='c1')
-    c2 = tf.constant([[3],[5]], name='c2')
+    var1 = tf.placeholder(dtype=tf.int32, shape=[2,2], name='var1')
+    var2 = tf.placeholder(dtype=tf.int32, shape=[2,1], name='var2')
+    var3 = tf.Variable(initial_value=[[1],[1]], dtype=tf.int32)
+
+    init = tf.variables_initializer(tf.global_variables(), name='init')
+
     with tf.name_scope('computation'):
-      result = tf.matmul(c1, c2, name='result')
+      result = tf.add(tf.matmul(var1, var2), var3, name='result')
 
     return graph
 

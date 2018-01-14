@@ -5,25 +5,42 @@
         "dtype": {
           "type": "DT_INT32"
         }, 
-        "value": {
-          "tensor": {
-            "dtype": "DT_INT32", 
-            "tensorShape": {
-              "dim": [
-                {
-                  "size": "2"
-                }, 
-                {
-                  "size": "2"
-                }
-              ]
-            }, 
-            "tensorContent": "AgAAAAIAAAAEAAAABAAAAA=="
+        "shape": {
+          "shape": {
+            "dim": [
+              {
+                "size": "2"
+              }, 
+              {
+                "size": "2"
+              }
+            ]
           }
         }
       }, 
-      "name": "c1", 
-      "op": "Const"
+      "name": "var1", 
+      "op": "Placeholder"
+    }, 
+    {
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        }, 
+        "shape": {
+          "shape": {
+            "dim": [
+              {
+                "size": "2"
+              }, 
+              {
+                "size": "1"
+              }
+            ]
+          }
+        }
+      }, 
+      "name": "var2", 
+      "op": "Placeholder"
     }, 
     {
       "attr": {
@@ -43,17 +60,96 @@
                 }
               ]
             }, 
-            "tensorContent": "AwAAAAUAAAA="
+            "tensorContent": "AQAAAAEAAAA="
           }
         }
       }, 
-      "name": "c2", 
+      "name": "Variable/initial_value", 
       "op": "Const"
     }, 
     {
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        }, 
+        "shape": {
+          "shape": {
+            "dim": [
+              {
+                "size": "2"
+              }, 
+              {
+                "size": "1"
+              }
+            ]
+          }
+        }, 
+        "shared_name": {
+          "s": ""
+        }, 
+        "container": {
+          "s": ""
+        }
+      }, 
+      "name": "Variable", 
+      "op": "VariableV2"
+    }, 
+    {
       "input": [
-        "c1", 
-        "c2"
+        "Variable", 
+        "Variable/initial_value"
+      ], 
+      "attr": {
+        "validate_shape": {
+          "b": true
+        }, 
+        "_class": {
+          "list": {
+            "s": [
+              "bG9jOkBWYXJpYWJsZQ=="
+            ]
+          }
+        }, 
+        "use_locking": {
+          "b": true
+        }, 
+        "T": {
+          "type": "DT_INT32"
+        }
+      }, 
+      "name": "Variable/Assign", 
+      "op": "Assign"
+    }, 
+    {
+      "input": [
+        "Variable"
+      ], 
+      "attr": {
+        "_class": {
+          "list": {
+            "s": [
+              "bG9jOkBWYXJpYWJsZQ=="
+            ]
+          }
+        }, 
+        "T": {
+          "type": "DT_INT32"
+        }
+      }, 
+      "name": "Variable/read", 
+      "op": "Identity"
+    }, 
+    {
+      "input": [
+        "^Variable/Assign"
+      ], 
+      "name": "init", 
+      "op": "NoOp"
+    }, 
+    {
+      "input": [
+        "var1", 
+        "var2"
       ], 
       "attr": {
         "transpose_b": {
@@ -66,8 +162,21 @@
           "type": "DT_INT32"
         }
       }, 
-      "name": "computation/result", 
+      "name": "computation/MatMul", 
       "op": "MatMul"
+    }, 
+    {
+      "input": [
+        "computation/MatMul", 
+        "Variable/read"
+      ], 
+      "attr": {
+        "T": {
+          "type": "DT_INT32"
+        }
+      }, 
+      "name": "computation/result", 
+      "op": "Add"
     }
   ], 
   "versions": {
