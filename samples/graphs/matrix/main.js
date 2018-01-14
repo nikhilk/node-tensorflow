@@ -8,16 +8,15 @@ let session = tf.Session.fromGraphDef('./graph.proto',
     result: 'computation/result'
   });
 
-let inputs = {
-  var1: tf.Tensor.create([[2,2],[4,4]], tf.Types.int32),
-  var2: tf.Tensor.create([[3],[5]], tf.Types.int32)
-};
+session.run(null, null, 'init');
 
-session.run(null, null, ['init']);
-let outputs = session.run(inputs, ['result']);
-console.log(outputs.result.toValue());
+let a = tf.Tensor.create([[2,2],[4,4]], tf.Types.int32);
+let b = tf.Tensor.create([[3],[5]], tf.Types.int32);
+let result = session.run({ var1: a, var2: b }, 'result');
+console.log(result.toValue());
 
-inputs.var1.delete();
-inputs.var2.delete();
-outputs.result.delete();
+a.delete();
+b.delete();
+result.delete();
+
 session.delete();

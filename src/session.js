@@ -131,6 +131,15 @@ class Session extends api.Reference {
   }
 
   run(inputs, outputs, targets) {
+    let singleOutput = false;
+    if (outputs && !Array.isArray(outputs)) {
+      outputs = [outputs];
+      singleOutput = true;
+    }
+    if (targets && !Array.isArray(targets)) {
+      targets = [targets];
+    }
+
     let params = createRunParameters(this._graph, inputs, outputs, targets);
 
     let status = api.TF_NewStatus();
@@ -156,8 +165,11 @@ class Session extends api.Reference {
     }
 
     if (params.outputs) {
-      let results = {};
+      if (singleOutput) {
+        return new Tensor(params.outputTensors[0]);
+      }
 
+      let results = {};
       outputs.forEach((name, i) => {
         results[name] = new Tensor(params.outputTensors[i]);
       });
