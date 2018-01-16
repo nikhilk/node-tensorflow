@@ -54,15 +54,15 @@ function listToTensor(list, shape) {
 
 class Tensor extends api.Reference {
 
-  constructor(handle, type, shape, array) {
+  constructor(handle, type, shape, value) {
     super(handle, api.TF_DeleteTensor);
     this._type = type || 0;
     this._shape = shape || null;
-    this._array = array || null;
+    this._value = value || null;
   }
 
   static create(data, dataType, shape) {
-    let array = data;
+    let value = data;
 
     // Detect the shape by walking the arrays (to handle nested arrays). This assumes the arrays
     // are not jagged.
@@ -70,14 +70,18 @@ class Tensor extends api.Reference {
       shape = [];
 
       let element = data;
-      while (element.constructor == Array) {
+      while (Array.isArray(element)) {
         shape.push(element.length);
         element = element[0]
       }
     }
 
-    // Flatten the arrays, so it can be converted into a buffer containing all the values.
-    if (shape.length > 1) {
+    if (shape.length === 0) {
+      // Ensure data is represented as an array, even for scalars
+      data = [data];
+    }
+    else if (shape.length > 1) {
+      // Flatten the arrays, so it can be converted into a buffer containing all the values.
       data = tensorToList(data);
     }
 
@@ -111,7 +115,7 @@ class Tensor extends api.Reference {
       throw new Error('Unable to allocate Tensor.');
     }
 
-    return new Tensor(handle, dataType, shape, array);
+    return new Tensor(handle, dataType, shape, value);
   }
 
   get shape() {
