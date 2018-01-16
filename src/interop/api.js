@@ -196,6 +196,7 @@ const libApi = {
 const library = ffi.Library(path.join(libPath, 'libtensorflow'), libApi);
 library.Protos = require('./messages');
 library.ApiTypes = types;
+library.Status = library.TF_NewStatus();
 library.StatusCodes = statusCodes;
 library.Types = tensorTypes;
 

@@ -86,13 +86,11 @@ class Session extends api.Reference {
 
     ownGraph = ownGraph || false;
 
-    let status = api.TF_NewStatus();
     let sessionOptions = api.TF_NewSessionOptions();
-    let sessionHandle = api.TF_NewSession(graph.handle, sessionOptions, status);
-    let code = api.TF_GetCode(status);
+    let sessionHandle = api.TF_NewSession(graph.handle, sessionOptions, api.Status);
+    let code = api.TF_GetCode(api.Status);
 
     api.TF_DeleteSessionOptions(sessionOptions);
-    api.TF_DeleteStatus(status);
     if (code === api.StatusCodes.ok) {
       return new Session(sessionHandle, graph, ownGraph);
     }
@@ -117,10 +115,7 @@ class Session extends api.Reference {
   delete() {
     // Overridden, as TF_DeleteSession doesn't follow the pattern of other Delete APIs.
     if (this.isValid) {
-      let status = api.TF_NewStatus();
-      api.TF_DeleteSession(this._handle, status);
-      api.TF_DeleteStatus(status);
-
+      api.TF_DeleteSession(this._handle, api.Status);
       this._handle = null;
     }
 
@@ -142,26 +137,18 @@ class Session extends api.Reference {
 
     let params = createRunParameters(this._graph, inputs, outputs, targets);
 
-    let status = api.TF_NewStatus();
     api.TF_SessionRun(this._handle,
                       /* options */ null,
                       params.inputOps, params.inputTensors, params.inputs,
                       params.outputOps, params.outputTensors, params.outputs,
                       params.targetOps, params.targets,
                       /* metadata */ null,
-                      status)
-    let code = api.TF_GetCode(status);
-    let error = null;
+                      api.Status);
+    let code = api.TF_GetCode(api.Status);
 
     if (code !== api.StatusCodes.ok) {
-      let message = api.TF_Message(status);
-      error = new Error(message);
-    }
-
-    api.TF_DeleteStatus(status);
-
-    if (error) {
-      throw error;
+      let message = api.TF_Message(api.Status);
+      throw new Error(message);
     }
 
     if (params.outputs) {

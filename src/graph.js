@@ -12,12 +12,10 @@ function loadGraph(protobuf) {
   let graphDefOptions = api.TF_NewImportGraphDefOptions();
 
   let graphHandle = api.TF_NewGraph();
-  let status = api.TF_NewStatus();
-  api.TF_GraphImportGraphDef(graphHandle, graphDefBuffer, graphDefOptions, status);
+  api.TF_GraphImportGraphDef(graphHandle, graphDefBuffer, graphDefOptions, api.Status);
 
-  let code = api.TF_GetCode(status);
+  let code = api.TF_GetCode(api.Status);
 
-  api.TF_DeleteStatus(status);
   api.TF_DeleteImportGraphDefOptions(graphDefOptions);
   api.TF_DeleteBuffer(graphDefBuffer);
 

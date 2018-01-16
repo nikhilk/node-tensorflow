@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "tensorflow": "^0.6.4"
+    "tensorflow": "^0.6.5"
   },
   "scripts": {
     "presample": "python graph.py",
