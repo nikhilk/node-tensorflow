@@ -57,9 +57,11 @@ var graphDef = {
   node: [ const1, const2, add ]
 }
 
-let session = tf.Session.fromGraphDef(graphDef, { sum: 'sum' });
+let graph = tf.graph(graphDef);
+let session = graph.createSession();
+
 let results = session.run(null, ['sum'], null);
 
-console.log(results.sum.toValue());
-results.sum.delete();
-session.delete();
+console.log(results.sum.value);
+
+graph.delete();

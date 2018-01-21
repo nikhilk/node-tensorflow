@@ -1,22 +1,15 @@
 const tf = require('tensorflow');
 
-let session = tf.Session.fromGraphDef('./graph.proto',
-  {
-    init: 'init',
-    var1: 'var1',
-    var2: 'var2',
-    result: 'computation/result'
-  });
+let graph = tf.graph('./graph.proto');
+let session = graph.createSession();
 
 session.run(null, null, 'init');
 
-let a = tf.Tensor.create([[2,2],[4,4]], tf.Types.int32);
-let b = tf.Tensor.create([[3],[5]], tf.Types.int32);
-let result = session.run({ var1: a, var2: b }, 'result');
-console.log(result.toValue());
+let a = tf.tensor([[2,2],[4,4]], tf.Types.int32);
+let b = tf.tensor([[3],[5]], tf.Types.int32);
 
-a.delete();
-b.delete();
-result.delete();
+let outputs = session.run({ var1: a, var2: b }, ['var3', 'computation/result']);
+console.log(outputs.var3.value)
+console.log(outputs['computation/result'].value);
 
-session.delete();
+graph.delete();

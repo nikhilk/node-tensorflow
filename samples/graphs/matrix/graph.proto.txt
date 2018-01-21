@@ -45,7 +45,7 @@ node {
   }
 }
 node {
-  name: "Variable/initial_value"
+  name: "var3/initial_value"
   op: "Const"
   attr {
     key: "dtype"
@@ -72,7 +72,7 @@ node {
   }
 }
 node {
-  name: "Variable"
+  name: "var3"
   op: "VariableV2"
   attr {
     key: "container"
@@ -107,10 +107,10 @@ node {
   }
 }
 node {
-  name: "Variable/Assign"
+  name: "var3/Assign"
   op: "Assign"
-  input: "Variable"
-  input: "Variable/initial_value"
+  input: "var3"
+  input: "var3/initial_value"
   attr {
     key: "T"
     value {
@@ -121,7 +121,7 @@ node {
     key: "_class"
     value {
       list {
-        s: "loc:@Variable"
+        s: "loc:@var3"
       }
     }
   }
@@ -139,9 +139,9 @@ node {
   }
 }
 node {
-  name: "Variable/read"
+  name: "var3/read"
   op: "Identity"
-  input: "Variable"
+  input: "var3"
   attr {
     key: "T"
     value {
@@ -152,7 +152,7 @@ node {
     key: "_class"
     value {
       list {
-        s: "loc:@Variable"
+        s: "loc:@var3"
       }
     }
   }
@@ -160,7 +160,7 @@ node {
 node {
   name: "init"
   op: "NoOp"
-  input: "^Variable/Assign"
+  input: "^var3/Assign"
 }
 node {
   name: "computation/MatMul"
@@ -190,7 +190,7 @@ node {
   name: "computation/result"
   op: "Add"
   input: "computation/MatMul"
-  input: "Variable/read"
+  input: "var3/read"
   attr {
     key: "T"
     value {

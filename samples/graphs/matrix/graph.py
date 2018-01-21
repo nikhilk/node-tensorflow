@@ -23,12 +23,12 @@ def build_graph():
   with tf.Graph().as_default() as graph:
     var1 = tf.placeholder(dtype=tf.int32, shape=[2,2], name='var1')
     var2 = tf.placeholder(dtype=tf.int32, shape=[2,1], name='var2')
-    var3 = tf.Variable(initial_value=[[1],[1]], dtype=tf.int32)
+    var3 = tf.Variable(initial_value=[[1],[1]], dtype=tf.int32, name='var3')
 
-    init = tf.variables_initializer(tf.global_variables(), name='init')
+    tf.variables_initializer(tf.global_variables(), name='init')
 
     with tf.name_scope('computation'):
-      result = tf.add(tf.matmul(var1, var2), var3, name='result')
+      tf.add(tf.matmul(var1, var2), var3, name='result')
 
     return graph
 

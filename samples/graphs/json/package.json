@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "tensorflow": "^0.6.5"
+    "tensorflow": "^0.7.0"
   },
   "scripts": {
     "sample": "node main.js"

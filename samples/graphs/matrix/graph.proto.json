@@ -64,7 +64,7 @@
           }
         }
       }, 
-      "name": "Variable/initial_value", 
+      "name": "var3/initial_value", 
       "op": "Const"
     }, 
     {
@@ -84,20 +84,20 @@
             ]
           }
         }, 
-        "shared_name": {
+        "container": {
           "s": ""
         }, 
-        "container": {
+        "shared_name": {
           "s": ""
         }
       }, 
-      "name": "Variable", 
+      "name": "var3", 
       "op": "VariableV2"
     }, 
     {
       "input": [
-        "Variable", 
-        "Variable/initial_value"
+        "var3", 
+        "var3/initial_value"
       ], 
       "attr": {
         "validate_shape": {
@@ -106,7 +106,7 @@
         "_class": {
           "list": {
             "s": [
-              "bG9jOkBWYXJpYWJsZQ=="
+              "bG9jOkB2YXIz"
             ]
           }
         }, 
@@ -117,18 +117,18 @@
           "type": "DT_INT32"
         }
       }, 
-      "name": "Variable/Assign", 
+      "name": "var3/Assign", 
       "op": "Assign"
     }, 
     {
       "input": [
-        "Variable"
+        "var3"
       ], 
       "attr": {
         "_class": {
           "list": {
             "s": [
-              "bG9jOkBWYXJpYWJsZQ=="
+              "bG9jOkB2YXIz"
             ]
           }
         }, 
@@ -136,12 +136,12 @@
           "type": "DT_INT32"
         }
       }, 
-      "name": "Variable/read", 
+      "name": "var3/read", 
       "op": "Identity"
     }, 
     {
       "input": [
-        "^Variable/Assign"
+        "^var3/Assign"
       ], 
       "name": "init", 
       "op": "NoOp"
@@ -168,7 +168,7 @@
     {
       "input": [
         "computation/MatMul", 
-        "Variable/read"
+        "var3/read"
       ], 
       "attr": {
         "T": {
