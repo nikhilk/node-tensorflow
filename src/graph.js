@@ -1,90 +1,96 @@
 // graph.js
-// Defines the Graph class.
+// Implements the Graph class to represent a Graph built from a GraphDef.
 //
 
 'use strict';
 
 const api = require('./interop/api'),
-      fs = require('fs');
+      fs = require('fs'),
+      session = require('./session');
 
-function loadGraph(protobuf) {
+
+class Graph {
+
+  constructor(graphHandle) {
+    this._graphHandle = graphHandle;
+    this._opCache = {};
+
+    this._sessions = [];
+  }
+
+  delete() {
+    if (this._sessions) {
+      this._sessions.forEach((session) => session.delete());
+      this._sessions = null;
+    }
+
+    if (this._graphHandle) {
+      api.TF_DeleteGraph(this._graphHandle);
+      this._graphHandle = null;
+    }
+  }
+
+  createSession() {
+    this._ensureValid();
+
+    if (this._sessions === null) {
+      this._sessions = [];
+    }
+
+    let s = session.create(this._graphHandle, this._opCache);
+    this._sessions.push(s);
+
+    return s;
+  }
+
+  _ensureValid() {
+    if (!this._graphHandle) {
+      throw new Error('The Graph instance has been deleted.');
+    }
+  }
+}
+
+
+function createGraph(graphDef) {
+  let protobuf = loadGraphDef(graphDef);
+
   let graphDefBuffer = api.TF_NewBufferFromString(protobuf, protobuf.length);
   let graphDefOptions = api.TF_NewImportGraphDefOptions();
 
   let graphHandle = api.TF_NewGraph();
   api.TF_GraphImportGraphDef(graphHandle, graphDefBuffer, graphDefOptions, api.Status);
 
-  let code = api.TF_GetCode(api.Status);
-
   api.TF_DeleteImportGraphDefOptions(graphDefOptions);
   api.TF_DeleteBuffer(graphDefBuffer);
 
-  if (code === api.StatusCodes.ok) {
-    return new Graph(graphHandle);
+  if (api.TF_GetCode(api.Status) !== api.StatusCodes.ok) {
+    api.TF_DeleteGraph(graphHandle);
+
+    let error = api.TF_Message(api.Status);
+    throw new Error(error);
+  }
+
+  return new Graph(graphHandle);
+}
+
+function loadGraphDef(graphDef) {
+  if (graphDef.constructor == String) {
+    return fs.readFileSync(graphDef);
+  }
+  else if (Buffer.isBuffer(graphDef)) {
+    return graphdef;
   }
   else {
-    api.TF_DeleteGraph(graphHandle);
-    throw new Error('Invalid GraphDef');
-  }
-}
+    let ProtobufWriter = require('pbf');
 
-class Graph extends api.Reference {
+    let writer = new ProtobufWriter();
+    api.Protos.GraphDef.write(graphDef, writer);
 
-  constructor(handle) {
-    super(handle, api.TF_DeleteGraph);
-    this._ops = {};
-  }
-
-  get ops() {
-    return this._ops;
-  }
-
-  loadOperations(operations) {
-    this.ensureValid();
-
-    let unresolvedOps = null;
-    for (let alias in operations) {
-      let name = operations[alias];
-      let op = api.TF_GraphOperationByName(this._handle, name);
-
-      if (op && !op.isNull()) {
-        this._ops[alias] = op;
-      }
-      else {
-        unresolvedOps = unresolvedOps || {};
-        unresolvedOps[alias] = name;
-      }
-    }
-
-    return unresolvedOps;
-  }
-
-  static fromGraphDef(graphDef, operations) {
-    let protobuf = null;
-    if (graphDef.constructor == String) {
-      protobuf = fs.readFileSync(graphDef);
-    }
-    else if (Buffer.isBuffer(graphDef)) {
-      protobuf = graphDef;
-    }
-    else {
-      let ProtobufWriter = require('pbf');
-
-      let writer = new ProtobufWriter();
-      api.Protos.GraphDef.write(graphDef, writer);
-
-      protobuf = writer.finish();
-    }
-
-    let graph = loadGraph(protobuf);
-
-    if (operations) {
-      graph.loadOperations(operations);
-    }
-
-    return graph;
+    return writer.finish();
   }
 }
 
 
-module.exports = Graph;
+module.exports = {
+  create: createGraph
+};

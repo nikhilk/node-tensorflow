@@ -2,11 +2,12 @@
 // Defines the TensorFlow module.
 //
 
-const api = require('./interop/api');
+const api = require('./interop/api'),
+      tensor = require('./tensor'),
+      graph = require('./graph');
 
 module.exports = {
   Types: api.Types,
-  Tensor: require('./tensor'),
-  Graph: require('./graph'),
-  Session: require('./session')
+  graph: graph.create,
+  tensor: tensor.create,
 };

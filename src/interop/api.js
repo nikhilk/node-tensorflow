@@ -205,39 +205,4 @@ library.Types = tensorTypes;
 library.TensorDeallocator = ffi.Callback(types.Void, [types.Any, types.Size, types.Any],
                                          function() {});
 
-class Reference {
-
-  constructor(handle, deleteFn) {
-    this._handle = handle;
-    this._deleteFn = deleteFn;
-  }
-
-  get handle() {
-    this.ensureValid();
-    return this._handle;
-  }
-
-  get isValid() {
-    return this._handle !== null;
-  }
-
-  ensureValid() {
-    if (!this._handle) {
-      throw new Error('Invalid call. The object has been deleted.');
-    }
-  }
-
-  delete() {
-    if (!this._deleteFn) {
-      throw new Error('No deleteFn was provided.');
-    }
-    if (this._handle) {
-      this._deleteFn(this._handle);
-      this._handle = null;
-    }
-  }
-}
-
-library.Reference = Reference;
-
 module.exports = library;

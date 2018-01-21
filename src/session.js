@@ -1,14 +1,99 @@
 // session.js
-// Defines the Session class.
+// Implements the Session class to wrap a TensorFlow session, and session.run functionality.
 //
 
 'use strict';
 
 const api = require('./interop/api'),
-      Graph = require('./graph'),
-      Tensor = require('./tensor');
+      tensor = require('./tensor');
 
-function createRunParameters(graph, inputs, outputs, targets) {
+
+class Session {
+
+  constructor(sessionHandle, graphHandle, graphOps) {
+    this._sessionHandle = sessionHandle;
+    this._graphHandle = graphHandle;
+    this._graphOps = graphOps;
+  }
+
+  delete() {
+    if (this._sessionHandle) {
+      api.TF_DeleteSession(this._sessionHandle, api.Status);      
+      this._sessionHandle = null;
+    }
+  }
+
+  _ensureValid() {
+    if (!this._sessionHandle) {
+      throw new Error('The Session instance has been closed and deleted.');
+    }
+  }
+
+  run(inputs, outputs, targets) {
+    this._ensureValid();
+
+    let singleOutput = false;
+    if (outputs && !Array.isArray(outputs)) {
+      outputs = [outputs];
+      singleOutput = true;
+    }
+    if (targets && !Array.isArray(targets)) {
+      targets = [targets];
+    }
+
+    let params = createRunParameters(this._graphHandle, this._graphOps,
+                                     inputs, outputs, targets);
+
+    api.TF_SessionRun(this._sessionHandle,
+                      /* options */ null,
+                      params.inputOps, params.inputTensors, params.inputs,
+                      params.outputOps, params.outputTensors, params.outputs,
+                      params.targetOps, params.targets,
+                      /* metadata */ null,
+                      api.Status);
+
+    if (params.inputs) {
+      for (let i = 0; i < params.inputs; i++) {
+        api.TF_DeleteTensor(params.inputTensors[i]);
+      }
+    }
+
+    let code = api.TF_GetCode(api.Status);
+    if (code !== api.StatusCodes.ok) {
+      let message = api.TF_Message(api.Status);
+      throw new Error(message);
+    }
+
+    let results = undefined;
+    if (params.outputs) {
+      results = createRunResults(outputs, params.outputTensors, singleOutput);
+
+      for (let i = 0; i < params.outputs; i++) {
+        api.TF_DeleteTensor(params.outputTensors[i]);
+      }
+    }
+
+    return results;
+  }
+}
+
+
+function createSession(graphHandle, graphOps) {
+  let sessionOptions = api.TF_NewSessionOptions();
+  let sessionHandle = api.TF_NewSession(graphHandle, sessionOptions, api.Status);
+  let code = api.TF_GetCode(api.Status);
+
+  api.TF_DeleteSessionOptions(sessionOptions);
+
+  if (api.TF_GetCode(api.Status) !== api.StatusCodes.ok) {
+    let error = api.TF_Message(api.Status);
+    throw new Error(error);
+  }
+
+  return new Session(sessionHandle, graphHandle, graphOps);
+}
+
+function createRunParameters(graphHandle, ops, inputs, outputs, targets) {
   let params = {
     inputOps: null,
     inputTensors: null,
@@ -27,14 +112,10 @@ function createRunParameters(graph, inputs, outputs, targets) {
     for (let op in inputs) {
       let parts = op.split(':');
       let name = parts[0];
-      let opReference = graph.ops[name];
-
-      if (!opReference) {
-        throw new Error(`The input "${name}" wasn't loaded or doesn't exist in the graph.`);
-      }
+      let opReference = resolveOp(graphHandle, ops, name);
 
       params.inputOps.push(api.ApiTypes.OperationValue({op: opReference, index: parts[1] || 0}));
-      params.inputTensors.push(inputs[op].handle);
+      params.inputTensors.push(tensor.toHandle(inputs[op]));
 
       params.inputs++;
     }
@@ -48,10 +129,9 @@ function createRunParameters(graph, inputs, outputs, targets) {
     params.outputOps = outputs.map((o) => {
       let parts = o.split(':');
       let name = parts[0];
-      if (!graph.ops[name]) {
-        throw new Error(`The output "${name}" wasn't loaded or doesn't exist in the graph.`);
-      }
-      return api.ApiTypes.OperationValue({op: graph.ops[name], index: parts[1] || 0});
+      let opReference = resolveOp(graphHandle, ops, name)
+
+      return api.ApiTypes.OperationValue({op: opReference, index: parts[1] || 0});
     });
     params.outputOps = api.ApiTypes.OperationValueArray(params.outputOps);
     params.outputTensors = api.ApiTypes.TensorArray(params.outputs);
@@ -59,11 +139,8 @@ function createRunParameters(graph, inputs, outputs, targets) {
 
   if (targets) {
     params.targets = targets.length;
-    params.targetOps = targets.map((t) => {
-      if (!graph.ops[t]) {
-        throw new Error(`The target "${t}" wasn't loaded or doesn't exist in the graph.`);
-      }
-      return graph.ops[t];
+    params.targetOps = targets.map((name) => {
+      return resolveOp(graphHandle, ops, name);
     });
     params.targetOps = api.ApiTypes.OperationArray(params.targetOps);
   }
@@ -71,101 +148,35 @@ function createRunParameters(graph, inputs, outputs, targets) {
   return params;
 }
 
-class Session extends api.Reference {
-
-  constructor(handle, graph, ownGraph) {
-    super(handle);
-    this._graph = graph;
-    this._ownGraph = ownGraph;
+function createRunResults(outputs, outputTensors, singleOutput) {
+  if (singleOutput) {
+    return tensor.fromHandle(outputTensors[0]);
   }
 
-  static fromGraph(graph, ownGraph) {
-    if (!graph.isValid) {
-      throw new Error('Referenced graph object has been deleted.');
-    }
+  let results = {};
+  outputs.forEach((name, i) => {
+    results[name] = tensor.fromHandle(outputTensors[i]);
+  });
 
-    ownGraph = ownGraph || false;
-
-    let sessionOptions = api.TF_NewSessionOptions();
-    let sessionHandle = api.TF_NewSession(graph.handle, sessionOptions, api.Status);
-    let code = api.TF_GetCode(api.Status);
-
-    api.TF_DeleteSessionOptions(sessionOptions);
-    if (code === api.StatusCodes.ok) {
-      return new Session(sessionHandle, graph, ownGraph);
-    }
-    else {
-      if (ownGraph) {
-        graph.delete();
-      }
-
-      throw new Error('Unable to create session');
-    }
-  }
-
-  static fromGraphDef(graphDef, operations) {
-    let graph = Graph.fromGraphDef(graphDef, operations);
-    return Session.fromGraph(graph, /* ownGraph */ true);
-  }
-
-  get graph() {
-    return this._graph;
-  }
-
-  delete() {
-    // Overridden, as TF_DeleteSession doesn't follow the pattern of other Delete APIs.
-    if (this.isValid) {
-      api.TF_DeleteSession(this._handle, api.Status);
-      this._handle = null;
-    }
-
-    if (this._ownGraph && this._graph) {
-      this._graph.delete();
-      this._graph = null;
-    }
-  }
-
-  run(inputs, outputs, targets) {
-    let singleOutput = false;
-    if (outputs && !Array.isArray(outputs)) {
-      outputs = [outputs];
-      singleOutput = true;
-    }
-    if (targets && !Array.isArray(targets)) {
-      targets = [targets];
-    }
-
-    let params = createRunParameters(this._graph, inputs, outputs, targets);
-
-    api.TF_SessionRun(this._handle,
-                      /* options */ null,
-                      params.inputOps, params.inputTensors, params.inputs,
-                      params.outputOps, params.outputTensors, params.outputs,
-                      params.targetOps, params.targets,
-                      /* metadata */ null,
-                      api.Status);
-    let code = api.TF_GetCode(api.Status);
-
-    if (code !== api.StatusCodes.ok) {
-      let message = api.TF_Message(api.Status);
-      throw new Error(message);
-    }
-
-    if (params.outputs) {
-      if (singleOutput) {
-        return new Tensor(params.outputTensors[0]);
-      }
-
-      let results = {};
-      outputs.forEach((name, i) => {
-        results[name] = new Tensor(params.outputTensors[i]);
-      });
-
-      return results;
-    }
-
-    return null;
-  }
+  return results;
 }
 
-module.exports = Session;
+function resolveOp(graphHandle, opCache, name) {
+  let op = opCache[name];
+  if (op !== undefined) {
+    return op;
+  }
+
+  op = api.TF_GraphOperationByName(graphHandle, name);
+  if (op && !op.isNull()) {
+    opCache[name] = op;
+    return op;
+  }
+
+  throw new Error(`An operation with the name "${name}" was not found in the graph.`);
+}
+
+
+module.exports = {
+  create: createSession
+};
