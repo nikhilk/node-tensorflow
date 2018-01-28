@@ -27,6 +27,9 @@ const types = {
   String: 'string',
   StringArray: refArray('string'),
   Size: 'size_t',
+  SizePtr: ref.refType('size_t'),
+  Byte: 'byte',
+  BytePtr: ref.refType('byte'),
   Any: ref.refType('void')
 };
 types.Tensor = types.Any;
@@ -143,6 +146,15 @@ const libApi = {
 
   // void* TF_TensorData(tensor)
   TF_TensorData: [types.Any, [types.Tensor]],
+
+  // size_t TF_StringEncodedSize(size_t len)
+  TF_StringEncodedSize: [types.Size, [types.Size]],
+
+  // size_t TF_StringEncode(char* src, size_t src_len, char* dst, size_t dst_len, status)
+  TF_StringEncode: [types.Size, [types.Any, types.Size, types.Any, types.Size, types.Status]],
+
+  // size_t TF_StringDecode(char* src, size_t src_len, char** dst, size_t* dst_len, status)
+  TF_StringDecode: [types.Size, [types.Any, types.Size, types.Any, types.SizePtr, types.Status]],
 
   // Buffer TF_NewBufferFromString(void* data, size_t len)
   TF_NewBufferFromString: [types.Buffer, [types.Any, types.Size]],
