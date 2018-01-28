@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "tensorflow": "^0.8.0"
+  },
+  "scripts": {
+    "presample": "python graph.py",
+    "sample": "node main.js"
+  }
+}

@@ -1,0 +1,37 @@
+node {
+  name: "input"
+  op: "Placeholder"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: -1
+        }
+        dim {
+          size: 1
+        }
+      }
+    }
+  }
+}
+node {
+  name: "output"
+  op: "Identity"
+  input: "input"
+  attr {
+    key: "T"
+    value {
+      type: DT_STRING
+    }
+  }
+}
+versions {
+  producer: 24
+}

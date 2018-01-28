@@ -1,0 +1,40 @@
+{
+  "node": [
+    {
+      "attr": {
+        "dtype": {
+          "type": "DT_STRING"
+        }, 
+        "shape": {
+          "shape": {
+            "dim": [
+              {
+                "size": "-1"
+              }, 
+              {
+                "size": "1"
+              }
+            ]
+          }
+        }
+      }, 
+      "name": "input", 
+      "op": "Placeholder"
+    }, 
+    {
+      "input": [
+        "input"
+      ], 
+      "attr": {
+        "T": {
+          "type": "DT_STRING"
+        }
+      }, 
+      "name": "output", 
+      "op": "Identity"
+    }
+  ], 
+  "versions": {
+    "producer": 24
+  }
+}
