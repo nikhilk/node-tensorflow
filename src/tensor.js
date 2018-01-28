@@ -64,7 +64,12 @@ function createTensor(value, type, shape) {
       if (value[0].constructor == Number) {
         type = api.Types.float;
       }
-      // TODO: Add support for strings
+      else if (value[0].constructor == String) {
+        type = api.Types.string;
+      }
+      else {
+        throw new Error('Unsupported data type for creating a Tensor');
+      }
     }
   }
 

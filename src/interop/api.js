@@ -103,8 +103,12 @@ if (!fs.existsSync(path.join(libPath, 'libtensorflow_framework.so'))) {
   throw new Error(`libtensorflow_framework.so was not found at "${libPath}"`);
 }
 
-// Change the TensorFlow logging level to WARNING (default is INFO[4], which gets pretty noisy).
-process.env['TF_CPP_MIN_LOG_LEVEL'] = process.env['TENSORFLOW_LIB_LOG_LEVEL'] || '3';
+// Change the TensorFlow logging level to WARNING (default is INFO, which gets pretty noisy).
+// 0 -> all logs
+// 1 -> filter out INFO
+// 2 -> filter out WARN
+// 3 -> filter out ERROR
+process.env['TF_CPP_MIN_LOG_LEVEL'] = process.env['TENSORFLOW_LIB_LOG_LEVEL'] || '1';
 
 // Defines the subset of relevant TensorFlow APIs.
 // Each entry corresponds to an exported API signature in form of name -> [return type, arg types].

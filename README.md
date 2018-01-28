@@ -152,8 +152,7 @@ and [API](https://www.tensorflow.org/api_docs/) documentation.
 ## In the works, and more to come ...
 Some things on the plan to be tackled.
 
-1. Support for string tensors.
-2. Support for high-level API (and saved models representing results of training)
-3. Support for Windows
+* Support for high-level API (and saved models representing results of training)
+* Support for Windows
 
 Please file issues for feature suggestions, bugs or questions.
