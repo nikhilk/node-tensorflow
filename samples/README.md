@@ -12,6 +12,10 @@ The graphs set of samples demonstrate using TensorFlow graphs.
 Builds on the above to use matrices instead of scalar tensors, as well as load graphs containing
 namescopes. This sample will be updated to demonstrate feeding in tensors when executing graphs.
 
+### strings
+This demonstrates a graph that accepts a batch of strings input tensor, and produces a batch of
+strings as output.
+
 # Running Samples
 
 Within each sample directory:
