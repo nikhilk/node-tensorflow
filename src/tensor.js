@@ -5,7 +5,7 @@
 'use strict';
 
 const api = require('./interop/api'),
-      os = require('os');
+      serializers = require('./interop/serializers');
 
 
 class Tensor {
@@ -74,23 +74,9 @@ function createTensor(value, type, shape) {
 function createHandleFromTensor(value) {
   let tensor = createTensor(value);
 
-  // Convert to a native array
-  let data = null;
-  if (tensor.type === api.Types.float) {
-    data = api.ApiTypes.FloatArray(tensor.value).buffer;
-  }
-  else if (tensor.type === api.Types.int32) {
-    data = api.ApiTypes.IntArray(tensor.value).buffer;
-  }
-  else if (tensor.type === api.Types.int64) {
-    data = api.ApiTypes.LongLongArray(tensor.value).buffer;
-  }
-  else if (Buffer.isBuffer(tensor.value)) {
-    data = tensor.value;
-  }
-  else {
-    throw new Error('Unsupported tensor element type.');
-  }
+  // Convert to a buffer containing raw byte representation of the Tensor
+  let serializer = serializers.create(tensor.type);
+  let data = serializer.toBuffer(tensor.value);
 
   return api.TF_NewTensor(tensor.type,
                           api.ApiTypes.LongLongArray(tensor.shape), tensor.shape.length,
@@ -99,7 +85,6 @@ function createHandleFromTensor(value) {
 }
 
 function createTensorFromHandle(tensorHandle) {
-  let value = null;
   let shape = [];
 
   let dimensions = api.TF_NumDims(tensorHandle);
@@ -112,41 +97,15 @@ function createTensorFromHandle(tensorHandle) {
   let data = api.TF_TensorData(tensorHandle);
   data = data.reinterpret(dataLength, 0);
 
-  let reader = '';
   let type = api.TF_TensorType(tensorHandle);
-  let typeSize = 4;
-  if (type == api.Types.float) {
-    reader = 'readFloat' + os.endianness();
-  }
-  else if (type == api.Types.int32) {
-    reader = 'readInt32' + os.endianness();
-  }
-  else {
-    // TODO: Add support for strings
-    // Unsupported type; the buffer will be returned.
+  let serializer = serializers.create(type);
 
-    return new Tensor(data, type, shape);
+  let value = serializer.fromBuffer(data, shape);
+  if ((shape.length > 1) && !Buffer.isBuffer(value)) {
+    value = reshapeList(value, shape);
   }
 
-  reader = Buffer.prototype[reader];
-  if (shape.length === 0) {
-    // Scalar tensor value
-    return new Tensor(reader.call(data, 0), type, []);
-  }
-  else {
-    let totalItems = shape.reduce(function(dim, items) { return dim * items}, 1);
-    value = new Array(totalItems);
-
-    for (let i = 0; i < totalItems; i++) {
-      value[i] = reader.call(data, i * typeSize);
-    }
-
-    if (shape.length > 1) {
-      value = reshapeList(value, shape);
-    }
-
-    return new Tensor(value, type, shape);
-  }
+  return new Tensor(value, type, shape);
 }
 
 function calculateShape(value) {
