@@ -154,18 +154,17 @@ function flattenList(list) {
 }
 
 function reshapeList(list, shape) {
-  // This modifies the list in place, given this is run on a temporary list; hence avoiding
-  // copying cost.
-
   // Work from the inner-most dimension to outer-most, building up arrays of items matching
   // dimension length (this is essentially the inverse of the tensorToList implementation).
   for (let i = shape.length - 1; i > 0; i--) {
     let dimension = shape[i];
+    const newList = [];
 
-    for (let j = 0; j < list.length; j++) {
-      let items = list.splice(j, dimension);
-      list.splice(j, 0, items);
+    for (let j = 0; j < list.length / dimension; j++) {
+      newList.push(list.slice(j * dimension, (j + 1) * dimension));
     }
+
+    list = newList;
   }
 
   return list;
