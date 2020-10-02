@@ -154,5 +154,3 @@ Some things on the plan to be tackled.
 
 * Support for high-level API (and saved models representing results of training)
 * Support for Windows
-
-Please file issues for feature suggestions, bugs or questions.
